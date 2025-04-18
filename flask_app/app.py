@@ -1,23 +1,56 @@
-from flask import Flask, request, jsonify
-from firestore_service import add_allocation
+import os
+from flask import Flask
+from dotenv import load_dotenv
+from flask import request
+from supabase import create_client, Client
 
-# poetry run flask run --debug --port=5000
+# Load environment variables
+load_dotenv()
 
+# Create a Flask app
 app = Flask(__name__)
-app.config["DEBUG"] = True  # Enables automatic reloading
 
-@app.route("/add_country_value", methods = ['POST'])
+# Retrieve connection details
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
-def add_country_value():
-    data = request.json
-    country_id = data.get('country_id')
-    value = data.get('value')
+@app.route('/countries', methods = ['GET'])
+def countries():
 
-    if not country_id or not isinstance(value, (int, float)):
-        return jsonify({'error': 'Invalid input'}), 400
+    response = (supabase.table("countries")
+                .select("*")
+                .execute())
+
+    return response.data
+
+@app.route('/add_query', methods = ['POST'])
+def add_query():
+    prompt = request.json.get('prompt')  
+
+    if not prompt:
+        return "❌ Missing prompt", 400
     
-    add_allocation(country_id, value)
-    return jsonify({'message': 'Allocation added successfully'}), 201
+    response = (supabase.table("query")
+                .insert({"prompt": prompt})
+                .execute())
 
-def hello_world():
-    return "<p>Ori loves Lana!</p>"
+    return response.data
+
+@app.route('/save_response', methods = ['POST'])
+def add_query():
+    chat_response = request.json.get('chat_response')  
+
+    if not chat_response:
+        return "❌ No response", 400
+    
+    response = (supabase.table("responses")
+                .insert({"prompt": chat_response})
+                .execute())
+
+    return response.data
+    
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+
