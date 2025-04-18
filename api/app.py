@@ -38,7 +38,7 @@ def add_query():
     return response.data
 
 @app.route('/save_response', methods = ['POST'])
-def add_query():
+def save_response():
     chat_response = request.json.get('chat_response')  
 
     if not chat_response:
