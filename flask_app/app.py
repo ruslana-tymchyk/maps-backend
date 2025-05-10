@@ -1,54 +1,19 @@
-import os
 from flask import Flask
-from dotenv import load_dotenv
-from flask import request
-from supabase import create_client, Client
+from flask_cors import CORS
 
-# Load environment variables
-load_dotenv()
+from routes.supabase_routes import supabase_bp
+from routes.chat_routes import chat_bp
+
+from extensions import limiter
 
 # Create a Flask app
 app = Flask(__name__)
+CORS(app) #to call api from local server
 
-# Retrieve connection details
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+limiter.init_app(app)
 
-@app.route('/countries', methods = ['GET'])
-def countries():
-
-    response = (supabase.table("countries")
-                .select("*")
-                .execute())
-
-    return response.data
-
-@app.route('/add_query', methods = ['POST'])
-def add_query():
-    prompt = request.json.get('prompt')  
-
-    if not prompt:
-        return "❌ Missing prompt", 400
-    
-    response = (supabase.table("query")
-                .insert({"prompt": prompt})
-                .execute())
-
-    return response.data
-
-@app.route('/save_response', methods = ['POST'])
-def add_query():
-    chat_response = request.json.get('chat_response')  
-
-    if not chat_response:
-        return "❌ No response", 400
-    
-    response = (supabase.table("responses")
-                .insert({"prompt": chat_response})
-                .execute())
-
-    return response.data
+app.register_blueprint(supabase_bp)
+app.register_blueprint(chat_bp)
     
 if __name__ == '__main__':
     app.run(debug=True)
