@@ -4,7 +4,7 @@ from flask_cors import CORS
 from routes.supabase_routes import supabase_bp
 from routes.chat_routes import chat_bp
 
-from extensions import limiter
+from flask_app.extensions import limiter
 
 # Create a Flask app
 app = Flask(__name__)
