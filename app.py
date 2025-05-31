@@ -2,6 +2,9 @@ from flask import Flask
 from flask_cors import CORS
 import os
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 from routes.supabase_routes import supabase_bp
 from routes.chat_routes import chat_bp
 
@@ -24,6 +27,10 @@ app.register_blueprint(chat_bp)
     
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    print(f"Starting Flask app on port {port}")
+    try:
+        app.run(host="0.0.0.0", port=port, debug=True)
+    except Exception as e:
+        print(f"Error starting app: {e}")
     
 
