@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import openai
 from typing import List
 
-from extensions import limiter
+from flask_app.extensions import limiter
 
 from data.countries import all_countries
 

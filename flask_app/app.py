@@ -8,7 +8,14 @@ from extensions import limiter
 
 # Create a Flask app
 app = Flask(__name__)
-CORS(app) #to call api from local server
+
+
+allowed_origins = [
+    'http://localhost:3000',           # Local development
+    'http://127.0.0.1:3000',            # Alternative localhost
+    'https://maps-frontend-two.vercel.app' # Production
+]
+CORS(app, origins=allowed_origins)
 
 limiter.init_app(app)
 
