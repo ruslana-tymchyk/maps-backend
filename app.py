@@ -10,6 +10,7 @@ from routes.chat_routes import chat_bp
 
 from flask_app.extensions import limiter
 
+print(f"PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
 # Create a Flask app
 app = Flask(__name__)
 
