@@ -28,9 +28,6 @@ load_dotenv()
 
 ai_client = openai.OpenAI()
 
-# It is a sync function
-print(inspect.iscoroutinefunction(ai_client.responses.parse))
-
 chat_bp = Blueprint('chat', __name__)
 
 # OpenAI Connection 
@@ -181,3 +178,7 @@ async def execute_concurrent_calls(all_countries: list):
 @limiter.limit("50 per day")
 def response_for_selected_countries():
      return(asyncio.run(execute_concurrent_calls(all_countries)))
+
+@chat_bp.route('/')
+def health():
+    return {"status": "healthy"}
