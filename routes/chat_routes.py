@@ -124,7 +124,6 @@ async def chat(countries: list, user_message: str):
             return jsonify({"error": "An unexpected error occurred"}), 500
 
 async def execute_concurrent_calls(all_countries: list):
-    all_countries = all_countries[0:30]
     list_size = 30
     countries_lists = [all_countries[i: i+list_size] for i in range(0, len(all_countries), list_size)]
 
