@@ -2,9 +2,10 @@ from flask import Flask, Blueprint, request, jsonify
 import logging
 import os
 from dotenv import load_dotenv
+import urllib.parse
 
 import json
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 import openai
 from typing import List
 
@@ -60,7 +61,6 @@ async def chat(countries: list, user_message: str):
                 'author': 'Victor Hugo',
                 'year': 1862,
                 'rating': 4.4,
-                'goodreads_url': 'https://www.goodreads.com/book/show/24280.Les_Mis_rables',
                 'book_summary': "Les Misérables by Victor Hugo is a sweeping epic that follows ex-convict Jean Valjean’s quest for redemption while being relentlessly pursued by the righteous Inspector Javert. Set against the backdrop of 19th-century France, the novel explores themes of justice, poverty, love, and revolution through a cast of vivid characters. Its emotional depth and social criticism have made it a timeless classic of humanitarian literature."
             },
             {
@@ -69,7 +69,6 @@ async def chat(countries: list, user_message: str):
                 'author': 'Mikhail Bulgakov',
                 'year': 1967,
                 'rating': 4.3,
-                'goodreads_url': 'https://www.goodreads.com/book/show/117833.The_Master_and_Margarita',
                 'book_summary': "The Master and Margarita by Mikhail Bulgakov is a surreal, satirical novel in which the Devil, disguised as Woland, arrives in 1930s Moscow to expose the hypocrisy of Soviet society. Interwoven are a love story between a tormented writer and his devoted Margarita, and a philosophical retelling of Jesus' trial by Pontius Pilate. Blending political satire, romance, and metaphysical themes, the novel is celebrated as a bold critique of censorship and a triumph of artistic imagination."
             }
         ]
@@ -80,8 +79,8 @@ async def chat(countries: list, user_message: str):
                 "You are an expert at structured data extraction. "
                 "Your task is to search for books that specify user criteria for each of the following countries: "
                 f"{', '.join(countries)} and return them in a specified JSON structure. "
-                "Make sure you do not invent any information and give the TRUE Goodreads link that actually corresponds"
-                "to a book listed along with the true rating extracted from Goodreads."
+                "Make sure you do not invent any information and give the TRUE rating that actually corresponds to"
+                "to a book rating extracted from Goodreads. Make sure you correctly identify year and name of the country."
                 f"Make sure the book summary explains how this books is an example of book for the following user query: {user_message}"
                 f"Here is an example output:\n{example_output}"
             )
@@ -97,8 +96,17 @@ async def chat(countries: list, user_message: str):
             author: str
             year: int
             rating: int
-            goodreads_url: str
             book_summary: str
+
+            @computed_field
+            @property 
+            def google_url(self) -> str:
+                """Generate a custom Google search URL for the book."""
+                # Create search query: "book title" + author + goodreads
+                search_query = f'"{self.title}" {self.author}'
+                # URL encode the search query
+                encoded_query = urllib.parse.quote_plus(search_query)
+                return f"https://www.google.com/search?q={encoded_query}"
         
         class ListCountriesBooksExtraction(BaseModel):
              countries: List[CountriesBooksExtraction]
