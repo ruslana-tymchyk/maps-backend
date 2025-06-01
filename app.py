@@ -10,16 +10,15 @@ from routes.chat_routes import chat_bp
 
 from flask_app.extensions import limiter
 
-print(f"PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
 # Create a Flask app
 app = Flask(__name__)
 
-# allowed_origins = [
-#     'http://localhost:3000',           # Local development
-#     'http://127.0.0.1:3000',            # Alternative localhost
-#     'https://maps-frontend-two.vercel.app' # Production
-# ]
-# CORS(app, origins=allowed_origins)
+allowed_origins = [
+    'http://localhost:3000',           # Local development
+    'http://127.0.0.1:3000',            # Alternative localhost
+    'https://maps-frontend-two.vercel.app' # Production
+]
+CORS(app, origins=allowed_origins)
 CORS(app)
 
 limiter.init_app(app)
